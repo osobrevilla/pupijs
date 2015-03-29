@@ -41,20 +41,10 @@
 			}
 		</style>
 		<script src="ocrad.js"></script>
+		<script src="PupiResolver.js"></script>
 		<script>
 
-		var LINES = [],
-			DIRECTIONS = {
-		        "right": 1,
-		        "bottom-right": 2,
-		        "bottom": 3,
-		        "bottom-left": 4,
-		        "left": 5,
-		        "top-left": 6,
-		        "top": 7,
-		        "top-right": 8
-		    },
-			TABLE_NODES_MAP = [],
+		var	tableNodes = [],
 			dom = {},
 			searchEnable = false;
 
@@ -65,6 +55,7 @@
 	        img.onload = function() {
 	            OCRAD(img, {
 	            	letters_only: true,
+	            	same_height: true,
 	            	TOTAL_MEMORY: 33554432 * 4
 	            },onRead);
 	        };
@@ -75,7 +66,7 @@
 		function onRead(text) {
 		    var rawLines = text.replace(/\|/gi, "I").replace(/\w/gi, function(w) {
 		        return w.toUpperCase();
-		    }).split(/\n\n?/g);
+		    }).split(/\n\n?/g), LINES =[];
 
 		    if (rawLines.length) {
 		        var hlength = rawLines[0].length;
@@ -87,110 +78,41 @@
 		            }
 		        }
 		    }
-
-		    drawTable();
+			pupiResolver = new PupiResolver(LINES);
+		    drawTable(LINES);
 		}
 
-		function drawTable() {
+		function drawTable(LINES) {
 		    var ctr, ctd, tr = document.createElement('tr'),
 		        td = document.createElement('td'),
-		        frag = document.createDocumentFragment();
+		        frag = document.createDocumentFragment(),
+		        table = document.createElement('table');
+
 		    for (var l in LINES) {
 		        ctr = tr.cloneNode();
-		        TABLE_NODES_MAP[l] = [];
+		        tableNodes[l] = [];
 		        for (var c in LINES[l]) {
 		            ctd = td.cloneNode();
 		            ctd.textContent = LINES[l][c];
 		            ctr.appendChild(ctd);
-		            TABLE_NODES_MAP[l][c] = ctd;
+		            tableNodes[l][c] = ctd;
 		        }
 		        frag.appendChild(ctr);
 		    }
-		    dom.table.innerHTML = "";
-		    dom.table.appendChild(frag);
-		    searchEnable = true;
+		    
+		    dom.result.innerHTML = "";
 		    dom.status.textContent = "";
+		    
+		    table.appendChild(frag);
+		    dom.result.appendChild(table);
+		    searchEnable = true;
 		}
 
-		function walker(word, dir, x, y) {
-
-		    var points = [],
-		        letters = word.toUpperCase().split(""),
-		        lettersLength = letters.length,
-		        limitX = LINES[0].length,
-		        limitY = LINES.length;
-
-		    function go(index) {
-
-		        var ls = letters[index],
-		            lf = LINES[y][x];
-
-		        if (ls == lf) {
-		            points.push({
-		                x: x,
-		                y: y
-		            });
-		            if (points.length === lettersLength) {
-		                return;
-		            }
-		        } else {
-		            return;
-		        }
-
-		        switch (dir) {
-
-		            case 7: // TOP 
-		                y--;
-		                break;
-
-		            case 8: // TOP RIGHT
-		                y--;
-		                x++;
-		                break;
-
-		            case 1: // RIGHT 
-		                x++;
-		                break;
-
-		            case 2: // BOTTOM RIGHT 
-		                y++;
-		                x++;
-		                break;
-
-		            case 3: // BOTTOM 
-		                y++;
-		                break;
-
-		            case 4: // BOTTOM LEFT 
-		                y++;
-		                x--;
-		                break;
-
-		            case 5: // LEFT
-		                x--;
-		                break;
-
-		            case 6: // TOP LEFT
-		                y--;
-		                x--;
-		                break;
-		        }
-
-		        if (x >= 0 && x < limitX && y >= 0 && y < limitY) {
-		            go(++index);
-		        }
-		    }
-
-		    go(0);
-
-		    if (points.length === lettersLength) {
-		        return points;
-		    }
-		}
+	
 
 		function draw(points) {
 		    for (var p in points)
-		        TABLE_NODES_MAP[points[p].y][points[p].x].className = "resalt";
+		        tableNodes[points[p].y][points[p].x].className = "resalt";
 		}
 
 		function search() {
@@ -198,31 +120,22 @@
 				return;
 			this.blur();
 		    var word = this.value.replace(/\s+/g, ""),
-		        points;
-		    searchY:
-		        for (var y in LINES) {
-		            searchX: for (var x in LINES[y]) {
-		                searchD: for (var d in DIRECTIONS) {
-		                    points = walker(word, DIRECTIONS[d], 1 * x, 1 * y);
-		                    if (points) {
-		                        break searchY;
-		                    }
-		                }
-		            }
-		        }
-		    draw(points);
+		    	points = pupiResolver.find(word);
+		    if (points)
+		    	draw(points);
 		}
 
 		document.addEventListener('DOMContentLoaded', function(){
 			 dom.picker = document.getElementById("picker");
 			 dom.search = document.getElementById("search");
-			 dom.table = document.getElementById("result");
+			 dom.result = document.getElementById("result");
 			 dom.status = document.getElementById("status");
 			 
 			 dom.picker.addEventListener('change', loadFile, false);
 			 dom.search.addEventListener('search', search, false);
 
 		}, false);
+
 
 		</script>
 	</head>
@@ -231,8 +144,8 @@
 		<p><input type="file" id="picker" accept="image/*;capture=camera"></p>
 		<p><input type="search" id="search" /></p>
 		<p id="status"><p>
-		<table id="result">
-		</table>
+		<div id="result">
+		</div>
 		
 	</body>
 </html>
