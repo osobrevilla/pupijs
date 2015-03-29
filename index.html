@@ -1,0 +1,238 @@
+<!doctype html>
+<html>
+	<head>
+		<title>Pupiletras Solver</title>
+		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<style>
+			body {
+				background: whiteSmoke;
+				font-family: sans-serif;
+				margin: 30px;
+				text-align: center;
+			}
+			table {
+				width: 100%;
+				max-width:600px;
+				table-layout: fixed;
+				border-width: 1px;
+				border-style: solid;
+				border-collapse: collapse;
+				margin:  0 auto;
+			}
+			table td {
+				  border: solid 1px #CCC;
+				  text-align: center;
+				  font-size: 80%;
+				  padding: 1%;
+			}
+
+			#search {
+				width: 300px;
+				font-size: 100%;
+			}
+
+			#status {
+				text-align: center;
+			}
+
+			.resalt {
+				background-color: yellow;
+			}
+		</style>
+		<script src="ocrad.js"></script>
+		<script>
+
+		var LINES = [],
+			DIRECTIONS = {
+		        "right": 1,
+		        "bottom-right": 2,
+		        "bottom": 3,
+		        "bottom-left": 4,
+		        "left": 5,
+		        "top-left": 6,
+		        "top": 7,
+		        "top-right": 8
+		    },
+			TABLE_NODES_MAP = [],
+			dom = {},
+			searchEnable = false;
+
+		function loadFile() {
+			searchEnable = false;
+		    var objectURL = URL.createObjectURL(this.files[0]),
+		    	img = new Image();
+	        img.onload = function() {
+	            OCRAD(img, {
+	            	letters_only: true,
+	            	TOTAL_MEMORY: 33554432 * 4
+	            },onRead);
+	        };
+	        dom.status.textContent = "Reconociendo letras..";
+	        img.src = objectURL;
+		}
+
+		function onRead(text) {
+		    var rawLines = text.replace(/\|/gi, "I").replace(/\w/gi, function(w) {
+		        return w.toUpperCase();
+		    }).split(/\n\n?/g);
+
+		    if (rawLines.length) {
+		        var hlength = rawLines[0].length;
+		        for (var i in rawLines) {
+		            if (rawLines[i].length === hlength) {
+		                LINES.push(rawLines[i].split(" "));
+		            } else {
+		                break;
+		            }
+		        }
+		    }
+
+		    drawTable();
+		}
+
+		function drawTable() {
+		    var ctr, ctd, tr = document.createElement('tr'),
+		        td = document.createElement('td'),
+		        frag = document.createDocumentFragment();
+		    for (var l in LINES) {
+		        ctr = tr.cloneNode();
+		        TABLE_NODES_MAP[l] = [];
+		        for (var c in LINES[l]) {
+		            ctd = td.cloneNode();
+		            ctd.textContent = LINES[l][c];
+		            ctr.appendChild(ctd);
+		            TABLE_NODES_MAP[l][c] = ctd;
+		        }
+		        frag.appendChild(ctr);
+		    }
+		    dom.table.innerHTML = "";
+		    dom.table.appendChild(frag);
+		    searchEnable = true;
+		    dom.status.textContent = "";
+		}
+
+		function walker(word, dir, x, y) {
+
+		    var points = [],
+		        letters = word.toUpperCase().split(""),
+		        lettersLength = letters.length,
+		        limitX = LINES[0].length,
+		        limitY = LINES.length;
+
+		    function go(index) {
+
+		        var ls = letters[index],
+		            lf = LINES[y][x];
+
+		        if (ls == lf) {
+		            points.push({
+		                x: x,
+		                y: y
+		            });
+		            if (points.length === lettersLength) {
+		                return;
+		            }
+		        } else {
+		            return;
+		        }
+
+		        switch (dir) {
+
+		            case 7: // TOP 
+		                y--;
+		                break;
+
+		            case 8: // TOP RIGHT
+		                y--;
+		                x++;
+		                break;
+
+		            case 1: // RIGHT 
+		                x++;
+		                break;
+
+		            case 2: // BOTTOM RIGHT 
+		                y++;
+		                x++;
+		                break;
+
+		            case 3: // BOTTOM 
+		                y++;
+		                break;
+
+		            case 4: // BOTTOM LEFT 
+		                y++;
+		                x--;
+		                break;
+
+		            case 5: // LEFT
+		                x--;
+		                break;
+
+		            case 6: // TOP LEFT
+		                y--;
+		                x--;
+		                break;
+		        }
+
+		        if (x >= 0 && x < limitX && y >= 0 && y < limitY) {
+		            go(++index);
+		        }
+		    }
+
+		    go(0);
+
+		    if (points.length === lettersLength) {
+		        return points;
+		    }
+		}
+
+		function draw(points) {
+		    for (var p in points)
+		        TABLE_NODES_MAP[points[p].y][points[p].x].className = "resalt";
+		}
+
+		function search() {
+			if (!searchEnable)
+				return;
+			this.blur();
+		    var word = this.value.replace(/\s+/g, ""),
+		        points;
+		    searchY:
+		        for (var y in LINES) {
+		            searchX: for (var x in LINES[y]) {
+		                searchD: for (var d in DIRECTIONS) {
+		                    points = walker(word, DIRECTIONS[d], 1 * x, 1 * y);
+		                    if (points) {
+		                        break searchY;
+		                    }
+		                }
+		            }
+		        }
+		    draw(points);
+		}
+
+		document.addEventListener('DOMContentLoaded', function(){
+			 dom.picker = document.getElementById("picker");
+			 dom.search = document.getElementById("search");
+			 dom.table = document.getElementById("result");
+			 dom.status = document.getElementById("status");
+			 
+			 dom.picker.addEventListener('change', loadFile, false);
+			 dom.search.addEventListener('search', search, false);
+
+		}, false);
+
+		</script>
+	</head>
+	<body>
+		<h1>Pupiletras Solver</h1>
+		<p><input type="file" id="picker" accept="image/*;capture=camera"></p>
+		<p><input type="search" id="search" /></p>
+		<p id="status"><p>
+		<table id="result">
+		</table>
+		
+	</body>
+</html>
