@@ -1,151 +1,70 @@
 <!doctype html>
 <html>
-	<head>
-		<title>Pupiletras Solver</title>
-		<meta http-equiv="Content-type" content="text/html; charset=utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-		<style>
-			body {
-				background: whiteSmoke;
-				font-family: sans-serif;
-				margin: 30px;
-				text-align: center;
-			}
-			table {
-				width: 100%;
-				max-width:600px;
-				table-layout: fixed;
-				border-width: 1px;
-				border-style: solid;
-				border-collapse: collapse;
-				margin:  0 auto;
-			}
-			table td {
-				  border: solid 1px #CCC;
-				  text-align: center;
-				  font-size: 80%;
-				  padding: 1%;
-			}
 
-			#search {
-				width: 300px;
-				font-size: 100%;
-			}
-
-			#status {
-				text-align: center;
-			}
-
-			.resalt {
-				background-color: yellow;
-			}
-		</style>
-		<script src="src/lib/ocrad.js"></script>
-		<script src="src/PupiResolver.js"></script>
-		<script>
-
-		var	tableNodes = [],
-			dom = {},
-			searchEnable = false;
-
-		function loadFile() {
-			searchEnable = false;
-		    var objectURL = URL.createObjectURL(this.files[0]),
-		    	img = new Image();
-	        img.onload = function() {
-	            OCRAD(img, {
-	            	letters_only: true,
-	            	same_height: true,
-	            	TOTAL_MEMORY: 33554432 * 4
-	            },onRead);
-	        };
-	        dom.status.textContent = "Reconociendo letras..";
-	        img.src = objectURL;
+<head>
+	<title>Pupiletras Solver</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
+	<style>
+		body {
+			background: whiteSmoke;
+			font-family: sans-serif;
+			margin: 30px;
 		}
 
-		function onRead(text) {
-		    var rawLines = text.replace(/\|/gi, "I").replace(/\w/gi, function(w) {
-		        return w.toUpperCase();
-		    }).split(/\n\n?/g), LINES =[];
-
-		    if (rawLines.length) {
-		        var hlength = rawLines[0].length;
-		        for (var i in rawLines) {
-		            if (rawLines[i].length === hlength) {
-		                LINES.push(rawLines[i].split(" "));
-		            } else {
-		                break;
-		            }
-		        }
-		    }
-			pupiResolver = new PupiResolver(LINES);
-		    drawTable(LINES);
+		table {
+			width: 100%;
+			max-width: 600px;
+			table-layout: fixed;
+			border-width: 1px;
+			border-style: solid;
+			border-collapse: collapse;
+			margin: 0 auto;
 		}
 
-		function drawTable(LINES) {
-		    var ctr, ctd, tr = document.createElement('tr'),
-		        td = document.createElement('td'),
-		        frag = document.createDocumentFragment(),
-		        table = document.createElement('table');
-
-		    for (var l in LINES) {
-		        ctr = tr.cloneNode();
-		        tableNodes[l] = [];
-		        for (var c in LINES[l]) {
-		            ctd = td.cloneNode();
-		            ctd.textContent = LINES[l][c];
-		            ctr.appendChild(ctd);
-		            tableNodes[l][c] = ctd;
-		        }
-		        frag.appendChild(ctr);
-		    }
-		    
-		    dom.result.innerHTML = "";
-		    dom.status.textContent = "";
-		    
-		    table.appendChild(frag);
-		    dom.result.appendChild(table);
-		    searchEnable = true;
+		table td {
+			border: solid 1px #CCC;
+			text-align: center;
+			font-size: 80%;
+			padding: 1%;
 		}
 
+		#search {
+			width: 300px;
+			font-size: 100%;
+		}
+
+		#status {
+			text-align: center;
+		}
+
+		.resalt {
+			background-color: yellow;
+		}
+	</style>
+	<link rel="stylesheet" href="src/css/jquery.Jcrop.min.css" media="screen" charset="utf-8">
+
+</head>
+
+<body>
+	<h1>Pupiletras Solver</h1>
+	<p>
+		<input type="file" id="picker" accept="image/*;capture=camera">
+	</p>
+	<p>
+		<input type="search" id="search" placeholder="Buscar" />
+	</p>
 	
+	<p id="status"></p>
 
-		function draw(points) {
-		    for (var p in points)
-		        tableNodes[points[p].y][points[p].x].className = "resalt";
-		}
+	<div id="result"></div>
 
-		function search() {
-			if (!searchEnable)
-				return;
-			this.blur();
-		    var word = this.value.replace(/\s+/g, ""),
-		    	points = pupiResolver.find(word);
-		    if (points)
-		    	draw(points);
-		}
+	<script src="src/lib/ocrad.js"></script>
+	<script src="src/lib/jquery.min.js"></script>
+	<script src="src/lib/jquery.jCrop.min.js"></script>
+	<script src="src/PupiResolver.js"></script>
+	<script src="src/app.js"></script>
 
-		document.addEventListener('DOMContentLoaded', function(){
-			 dom.picker = document.getElementById("picker");
-			 dom.search = document.getElementById("search");
-			 dom.result = document.getElementById("result");
-			 dom.status = document.getElementById("status");
-			 
-			 dom.picker.addEventListener('change', loadFile, false);
-			 dom.search.addEventListener('search', search, false);
+</body>
 
-		}, false);
-
-
-		</script>
-	</head>
-	<body>
-		<h1>Pupiletras Solver</h1>
-		<p><input type="file" id="picker" accept="image/*;capture=camera"></p>
-		<p><input type="search" id="search" placeholder="Buscar" /></p>
-		<p id="status"><p>
-		<div id="result">
-		</div>
-		
-	</body>
 </html>
