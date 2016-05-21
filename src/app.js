@@ -76,7 +76,7 @@ var app = {
     if (points)
       app.draw(points);
   },
-  clear: function(){
+  clear: function() {
     app.dom.result.empty();
     app.dom.status.text("");
   }
@@ -99,25 +99,26 @@ var Inspector = {
     this.dom.picker = $("#picker").on('change', Inspector.onLoadFile);
     this.dom.read = $("<button/>").attr('id', 'read').text('Procesar').on('click', Inspector.process);
     this.dom.cropper = $('<div/>').attr('id', 'cropper').appendTo('body');
-    document.body.appendChild(canvas);
+    //document.body.appendChild(canvas);
   },
 
-  process: function(){
-      Inspector.dom.read.detach();
-      app.read(Inspector.getB64());
+  process: function() {
+    Inspector.dom.read.detach();
+    app.read(Inspector.getB64());
   },
 
-  addCropper: function(){
+  addCropper: function() {
     var that = this;
     that.dom.cropper.prepend(that.dom.read);
-    this.image = $(new Image()).on('load', function fn(){
-        Inspector.image.appendTo(that.dom.cropper).Jcrop({
-          onSelect: Inspector._setCoords,
-          onChange: Inspector._setCoords
-        }, function(){
-          Inspector.jcrop = this;
-        });
-        Inspector.draw();
+    this.image = $(new Image()).on('load', function fn() {
+      Inspector.image.appendTo(that.dom.cropper).Jcrop({
+        onSelect: Inspector._setCoords,
+        onChange: Inspector._setCoords,
+        setSelect: [0, 0, 100, 100]
+      }, function() { 
+        Inspector.jcrop = this;
+      });
+      Inspector.draw();
     });
     this.img = this.image.get(0);
   },
@@ -134,16 +135,16 @@ var Inspector = {
   //     }
   //     return imageData;
   // },
-  _setCoords: function (c) {
-      Inspector._x = c.x;
-      Inspector._y = c.y;
-      Inspector._w = c.w;
-      Inspector._h = c.h;
-      // if (Inspector._w > 0 && Inspector._h > 0){
-      //   console.log("e");
-      //   var imgData = Inspector.contrastImage(Inspector.ctx.getImageData(0, 0, Inspector._w, Inspector._h), 30);
-      //   Inspector.ctx.putImageData(imgData, 0, 0);
-      // }
+  _setCoords: function(c) {
+    Inspector._x = c.x;
+    Inspector._y = c.y;
+    Inspector._w = c.w;
+    Inspector._h = c.h;
+    // if (Inspector._w > 0 && Inspector._h > 0){
+    //   console.log("e");
+    //   var imgData = Inspector.contrastImage(Inspector.ctx.getImageData(0, 0, Inspector._w, Inspector._h), 30);
+    //   Inspector.ctx.putImageData(imgData, 0, 0);
+    // }
   },
   draw: function() {
     var ctx = Inspector.ctx;
@@ -180,8 +181,8 @@ var Inspector = {
   getB64: function() {
     return this.ctx.canvas.toDataURL("image/jpeg", 100);
   },
-  clear: function(){
-    if (this.jcrop){
+  clear: function() {
+    if (this.jcrop) {
       this.jcrop.destroy();
       this.image.remove();
       this.jcrop = null;

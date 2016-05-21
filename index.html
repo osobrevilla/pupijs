@@ -10,6 +10,7 @@
 			background: whiteSmoke;
 			font-family: sans-serif;
 			margin: 30px;
+			font-size: 10px;
 		}
 
 		table {
@@ -30,10 +31,19 @@
 		}
 
 		#search {
-			width: 300px;
-			font-size: 100%;
+			width: 100%;
+		    font-size: 100%;
+		    display: block;
+		    -webkit-appearance: none;
+		    border: solid 1px #EEE;
+		    padding: .4em;
+		    border-radius: .2em;
+		    text-align: center;
+		    box-sizing: border-box;
 		}
-
+		#picker {
+			float: right;
+		}
 		#status {
 			text-align: center;
 		}
@@ -41,24 +51,33 @@
 		.resalt {
 			background-color: yellow;
 		}
+
+		.wrapp {
+			font-size: 1.2em;
+		}
 	</style>
 	<link rel="stylesheet" href="src/css/jquery.Jcrop.min.css" media="screen" charset="utf-8">
 
 </head>
 
 <body>
-	<h1>Pupiletras Solver</h1>
-	<p>
-		<input type="file" id="picker" accept="image/*;capture=camera">
-	</p>
-	<p>
-		<input type="search" id="search" placeholder="Buscar" />
-	</p>
-	
-	<p id="status"></p>
+	<div class="wrapp">
+		<h1>Pupiletras Solver</h1>
+		<ol>
+		   <li>Carga una imagen de pupiletras "sin grilla"</li>
+		   <li>Luego selecciona el area donde estan la sopa de letras</li>
+		   <li>Presiona el boton procesar</li>
+		 </ol>
+			<input type="file" id="picker" accept="image/*;capture=camera">
+			<br>
+		<p>
+			<input type="search" id="search" placeholder="Escribe la palabra para buscar" />
+		</p>
+		
+		<p id="status"></p>
 
-	<div id="result"></div>
-
+		<div id="result"></div>
+	</div>
 	<script src="src/lib/ocrad.js"></script>
 	<script src="src/lib/jquery.min.js"></script>
 	<script src="src/lib/jquery.jCrop.min.js"></script>
