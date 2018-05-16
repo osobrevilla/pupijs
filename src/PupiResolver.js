@@ -67,7 +67,7 @@ PupiResolver.prototype._walker = function(word, dir, x, y) {
 
         switch (dir) {
 
-            case 7: // TOP 
+            case 7: // TOP
                 y--;
                 break;
 
@@ -76,20 +76,20 @@ PupiResolver.prototype._walker = function(word, dir, x, y) {
                 x++;
                 break;
 
-            case 1: // RIGHT 
+            case 1: // RIGHT
                 x++;
                 break;
 
-            case 2: // BOTTOM RIGHT 
+            case 2: // BOTTOM RIGHT
                 y++;
                 x++;
                 break;
 
-            case 3: // BOTTOM 
+            case 3: // BOTTOM
                 y++;
                 break;
 
-            case 4: // BOTTOM LEFT 
+            case 4: // BOTTOM LEFT
                 y++;
                 x--;
                 break;

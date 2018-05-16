@@ -34,26 +34,26 @@ var app = {
     img.src = src;
   },
   onRead: function(text) {
-    var LINES = text.trim().toUpperCase().replace(/ /gm, '').replace(/\|/g, "I").split(/[\r\n]+/).map(function(o) {
+    var lines = text.trim().toUpperCase().replace(/ /gm, '').replace(/\|/g, "I").split(/[\r\n]+/).map(function(o) {
       return o.split("");
     });
-    console.log(text, LINES);
-    app.pupiResolver = new PupiResolver(LINES);
-    app.writeTable(LINES);
+    console.log(text, lines);
+    app.pupiResolver = new PupiResolver(lines);
+    app.writeTable(lines);
     app.dom.status.text("Resultado");
   },
-  writeTable: function(LINES) {
+  writeTable: function(lines) {
     var ctr, ctd, tr = $('<tr/>'),
       td = $('<td/>'),
       frag = document.createDocumentFragment(),
-      table = $('<table/>');
+      table = $('<table/>'), l, c;
 
-    for (var l in LINES) {
+    for (l in lines) {
       ctr = tr.clone();
       app.tableNodes[l] = [];
-      for (var c in LINES[l]) {
+      for (c in lines[l]) {
         ctd = td.clone();
-        ctd.text(LINES[l][c]);
+        ctd.text(lines[l][c]);
         ctr.append(ctd);
         app.tableNodes[l][c] = ctd;
       }
@@ -65,7 +65,8 @@ var app = {
     this.searchEnable = true;
   },
   draw: function(points) {
-    for (var p in points)
+    var p;
+    for (p in points)
       app.tableNodes[points[p].y][points[p].x].attr('class', 'resalt');
   },
   search: function() {
@@ -115,7 +116,7 @@ var Inspector = {
         onSelect: Inspector._setCoords,
         onChange: Inspector._setCoords,
         setSelect: [0, 0, 100, 100]
-      }, function() { 
+      }, function() {
         Inspector.jcrop = this;
       });
       Inspector.draw();
