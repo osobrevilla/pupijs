@@ -1,90 +1,18 @@
+import $ from "jquery";
+import PupiResolver from "./lib/PupiResolver";
+
 window.requestAnimFrame = (function() {
-  return window.requestAnimationFrame ||
+  return (
+    window.requestAnimationFrame ||
     window.webkitRequestAnimationFrame ||
     window.mozRequestAnimationFrame ||
     function(callback) {
       window.setTimeout(callback, 1000 / 60);
-    };
+    }
+  );
 })();
 
-
-var app = {
-  tableNodes: [],
-  dom: {},
-  searchEnable: false,
-  init: function() {
-    app.dom.search = $("#search").on('search', app.search);
-    app.dom.result = $("#result");
-    app.dom.status = $("#status");
-    app.dom.result.empty();
-    app.dom.status.text("");
-    app.pupiResolver = null;
-  },
-  read: function(src) {
-    app.searchEnable = false;
-    var img = new Image();
-    img.onload = function() {
-      OCRAD(img, {
-        letters_only: true,
-        TOTAL_MEMORY: 33554432 * 4
-      }, app.onRead);
-    };
-    Inspector.clear();
-    app.dom.status.text("Reconociendo..");
-    img.src = src;
-  },
-  onRead: function(text) {
-    var lines = text.trim().toUpperCase().replace(/ /gm, '').replace(/\|/g, "I").split(/[\r\n]+/).map(function(o) {
-      return o.split("");
-    });
-    console.log(text, lines);
-    app.pupiResolver = new PupiResolver(lines);
-    app.writeTable(lines);
-    app.dom.status.text("Resultado");
-  },
-  writeTable: function(lines) {
-    var ctr, ctd, tr = $('<tr/>'),
-      td = $('<td/>'),
-      frag = document.createDocumentFragment(),
-      table = $('<table/>'), l, c;
-
-    for (l in lines) {
-      ctr = tr.clone();
-      app.tableNodes[l] = [];
-      for (c in lines[l]) {
-        ctd = td.clone();
-        ctd.text(lines[l][c]);
-        ctr.append(ctd);
-        app.tableNodes[l][c] = ctd;
-      }
-      frag.appendChild(ctr[0]);
-    }
-
-    this.dom.table = table.append(frag);
-    this.dom.result.html(table);
-    this.searchEnable = true;
-  },
-  draw: function(points) {
-    var p;
-    for (p in points)
-      app.tableNodes[points[p].y][points[p].x].attr('class', 'resalt');
-  },
-  search: function() {
-    if (!app.searchEnable)
-      return;
-    this.blur();
-    var points = app.pupiResolver.find(this.value.trim());
-    if (points)
-      app.draw(points);
-  },
-  clear: function() {
-    app.dom.result.empty();
-    app.dom.status.text("");
-  }
-};
-
-
-var Inspector = {
+const Inspector = {
   image: null,
   _x: 0,
   _y: 0,
@@ -92,14 +20,19 @@ var Inspector = {
   _h: 0,
   dom: {},
   init: function() {
-    var canvas = document.createElement('canvas');
+    var canvas = document.createElement("canvas");
     this.jcrop = null;
-    this.ctx = canvas.getContext('2d');
+    this.ctx = canvas.getContext("2d");
     // dom.btnUp = $('#up').on('mousedown mouseup', Inspector.up)
     // dom.btnDown = $('#down').on('mousedown mouseup', Inspector.down);
-    this.dom.picker = $("#picker").on('change', Inspector.onLoadFile);
-    this.dom.read = $("<button/>").attr('id', 'read').text('Procesar').on('click', Inspector.process);
-    this.dom.cropper = $('<div/>').attr('id', 'cropper').appendTo('body');
+    this.dom.picker = $("#picker").on("change", Inspector.onLoadFile);
+    this.dom.read = $("<button/>")
+      .attr("id", "read")
+      .text("Procesar")
+      .on("click", Inspector.process);
+    this.dom.cropper = $("<div/>")
+      .attr("id", "cropper")
+      .appendTo("body");
     //document.body.appendChild(canvas);
   },
 
@@ -111,14 +44,17 @@ var Inspector = {
   addCropper: function() {
     var that = this;
     that.dom.cropper.prepend(that.dom.read);
-    this.image = $(new Image()).on('load', function fn() {
-      Inspector.image.appendTo(that.dom.cropper).Jcrop({
-        onSelect: Inspector._setCoords,
-        onChange: Inspector._setCoords,
-        setSelect: [0, 0, 100, 100]
-      }, function() {
-        Inspector.jcrop = this;
-      });
+    this.image = $(new Image()).on("load", function fn() {
+      Inspector.image.appendTo(that.dom.cropper).Jcrop(
+        {
+          onSelect: Inspector._setCoords,
+          onChange: Inspector._setCoords,
+          setSelect: [0, 0, 100, 100]
+        },
+        function() {
+          Inspector.jcrop = this;
+        }
+      );
       Inspector.draw();
     });
     this.img = this.image.get(0);
@@ -152,14 +88,24 @@ var Inspector = {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     ctx.canvas.width = Inspector._w;
     ctx.canvas.height = Inspector._h;
-    ctx.drawImage(Inspector.img, Inspector._x, Inspector._y, Inspector._w, Inspector._h, 0, 0, Inspector._w, Inspector._h);
+    ctx.drawImage(
+      Inspector.img,
+      Inspector._x,
+      Inspector._y,
+      Inspector._w,
+      Inspector._h,
+      0,
+      0,
+      Inspector._w,
+      Inspector._h
+    );
     requestAnimFrame(Inspector.draw);
   },
   onLoadFile: function() {
     Inspector.clear();
     Inspector.addCropper();
     Inspector.objectURL = URL.createObjectURL(this.files[0]);
-    Inspector.image.attr('src', Inspector.objectURL);
+    Inspector.image.attr("src", Inspector.objectURL);
   },
   // up: function(e) {
   //   if (e.type === 'mouseup') {
@@ -194,5 +140,94 @@ var Inspector = {
   }
 };
 
-Inspector.init();
-app.init();
+const app = {
+  tableNodes: [],
+  dom: {},
+  searchEnable: false,
+  init: function() {
+    app.dom.search = $("#search").on("search", app.search);
+    app.dom.result = $("#result");
+    app.dom.status = $("#status");
+    app.dom.result.empty();
+    app.dom.status.text("");
+    app.pupiResolver = null;
+  },
+  read: function(src) {
+    app.searchEnable = false;
+    var img = new Image();
+    img.onload = function() {
+      OCRAD(
+        img,
+        {
+          letters_only: true,
+          TOTAL_MEMORY: 33554432 * 4
+        },
+        app.onRead
+      );
+    };
+    Inspector.clear();
+    app.dom.status.text("Reconociendo..");
+    img.src = src;
+  },
+  onRead: function(text) {
+    var lines = text
+      .trim()
+      .toUpperCase()
+      .replace(/ /gm, "")
+      .replace(/\|/g, "I")
+      .split(/[\r\n]+/)
+      .map(function(o) {
+        return o.split("");
+      });
+    console.log(text, lines);
+    app.pupiResolver = new PupiResolver(lines);
+    app.writeTable(lines);
+    app.dom.status.text("Resultado");
+  },
+  writeTable: function(lines) {
+    var ctr,
+      ctd,
+      tr = $("<tr/>"),
+      td = $("<td/>"),
+      frag = document.createDocumentFragment(),
+      table = $("<table/>"),
+      l,
+      c;
+
+    for (l in lines) {
+      ctr = tr.clone();
+      app.tableNodes[l] = [];
+      for (c in lines[l]) {
+        ctd = td.clone();
+        ctd.text(lines[l][c]);
+        ctr.append(ctd);
+        app.tableNodes[l][c] = ctd;
+      }
+      frag.appendChild(ctr[0]);
+    }
+
+    this.dom.table = table.append(frag);
+    this.dom.result.html(table);
+    this.searchEnable = true;
+  },
+  draw: function(points) {
+    var p;
+    for (p in points)
+      app.tableNodes[points[p].y][points[p].x].attr("class", "resalt");
+  },
+  search: function() {
+    if (!app.searchEnable) return;
+    this.blur();
+    var points = app.pupiResolver.find(this.value.trim());
+    if (points) app.draw(points);
+  },
+  clear: function() {
+    app.dom.result.empty();
+    app.dom.status.text("");
+  }
+};
+
+export default () => {
+  app.init();
+  Inspector.init();
+};
