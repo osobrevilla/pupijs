@@ -63,10 +63,13 @@ class PupiResolver {
   }
   _walker(word, dir, x, y) {
     var points = [],
-      letters = word.toUpperCase().split(""),
+      letters = word
+        .toUpperCase()
+        .trim()
+        .split(""),
       lettersLen = letters.length;
 
-    function go(index) {
+    const go = index => {
       var ls = letters[index],
         lf = this.data[y][x];
 
@@ -96,11 +99,11 @@ class PupiResolver {
       directions[dir]();
 
       if (x >= 0 && x < this.limitX && y >= 0 && y < this.limitY) {
-        go.call(this, ++index);
+        go(++index);
       }
-    }
+    };
 
-    go.call(this, 0);
+    go(0);
 
     if (points.length === lettersLen) {
       return points;
