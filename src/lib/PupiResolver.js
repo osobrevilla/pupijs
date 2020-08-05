@@ -26,7 +26,7 @@ const DIRECTIONS = {
   LEFT,
   TOP_LEFT,
   TOP,
-  TOP_RIGHT
+  TOP_RIGHT,
 };
 
 /** PupiResolver resolves an alphabet soup */
@@ -63,20 +63,17 @@ class PupiResolver {
   }
   _walker(word, dir, x, y) {
     var points = [],
-      letters = word
-        .toUpperCase()
-        .trim()
-        .split(""),
+      letters = word.toUpperCase().trim().split(""),
       lettersLen = letters.length;
 
-    const go = index => {
+    const go = (index) => {
       var ls = letters[index],
         lf = this.data[y][x];
 
       if (ls == lf) {
         points.push({
           x,
-          y
+          y,
         });
         if (points.length === lettersLen) {
           return;
@@ -93,7 +90,7 @@ class PupiResolver {
         [BOTTOM]: () => y++,
         [BOTTOM_LEFT]: () => (y++, x--),
         [LEFT]: () => x--,
-        [TOP_LEFT]: () => (y--, x--)
+        [TOP_LEFT]: () => (y--, x--),
       };
 
       directions[dir]();

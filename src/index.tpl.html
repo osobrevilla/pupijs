@@ -7,12 +7,15 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
     />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@500&display=swap"
+      rel="stylesheet"
+    />
     <style>
       body {
         background: whiteSmoke;
-        font-family: sans-serif;
+        font-family: "Roboto", sans-serif;
         margin: 30px;
-        font-size: 10px;
       }
 
       table {
@@ -43,61 +46,36 @@
         text-align: center;
         box-sizing: border-box;
       }
-      #picker {
-        float: right;
-      }
-      #status {
-        text-align: center;
-      }
 
-      .resalt {
+      .hightlight {
         background-color: yellow;
+        font-weight: bold;
       }
 
       .wrapp {
         font-size: 1.2em;
+        text-align: center;
+      }
+
+      #target {
+        font-size: 1.2em;
       }
     </style>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/jquery-jcrop/2.0.4/css/Jcrop.min.css"
-      integrity="sha256-ONTiDBcGCvrwkhS6AvPvUMzCtxqHqCfkAcVAKN/bNHQ="
-      crossorigin="anonymous"
-    />
-    <script
-      src="https://code.jquery.com/jquery-3.1.0.js"
-      integrity="sha256-slogkvB1K3VOkzAI8QITxV3VzpOnkeNVsKvtkYLMjfk="
-      crossorigin="anonymous"
-    ></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/jquery-jcrop/2.0.4/js/Jcrop.min.js"
-      integrity="sha256-NGIqm+F/SYzK93JP9TjvxzFBnaE+hQv6PCszY0ZPORY="
-      crossorigin="anonymous"
-    ></script>
   </head>
 
   <body>
-    <div class="wrapp">
+    <form id="pupiform" class="wrapp">
       <h1>Pupiletras Solver</h1>
-      <ol>
-        <li>Carga una imagen de pupiletras "sin grilla"</li>
-        <li>Luego selecciona el area donde estan la sopa de letras</li>
-        <li>Presiona el boton procesar</li>
-      </ol>
-      <input type="file" id="picker" accept="image/*;capture=camera" />
-      <br />
+      <h2>Paises de América</h2>
       <p>
         <input
           type="search"
-          id="search"
+          name="search"
           placeholder="Escribe la palabra para buscar"
         />
       </p>
 
-      <p id="status"></p>
-
-      <div id="result"></div>
-    </div>
-    <script src="lib/ocrad.js"></script>
+      <div id="target"></div>
+    </form>
   </body>
 </html>
