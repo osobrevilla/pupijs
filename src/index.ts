@@ -1,4 +1,4 @@
-import PupiResolver from "./lib/PupiResolver";
+import Pupi, { PupiData, PupiPoint } from "./Pupi";
 
 const soap = `Z U R O A C Z A V A I U W D A
             A T O G A M W E S X Q V L I R
@@ -18,10 +18,10 @@ const soap = `Z U R O A C Z A V A I U W D A
 
 const data = soap.split(/\n\s+/).map((r) => r.split(" "));
 
-const pupi = new PupiResolver(data);
+const pupi = new Pupi(data as PupiData);
 
 const grid = (() => {
-  const map = {};
+  const map: { [key: string]: { node: HTMLElement; value: string } } = {};
   const table = document.createElement("table");
   data.forEach((row, y) => {
     const rowNode = document.createElement("tr");
@@ -40,14 +40,14 @@ const grid = (() => {
   return { table, map };
 })();
 
-const highlightPoints = (points) => {
+const highlightPoints = (points: PupiPoint[]) => {
   points.forEach(({ x, y }) => {
     grid.map[x + "-" + y].node.classList.add("hightlight");
   });
 };
 
 const app = {
-  searchWord(word) {
+  searchWord(word: string) {
     const points = pupi.find(word);
     if (points) {
       highlightPoints(points);
@@ -55,11 +55,16 @@ const app = {
     return false;
   },
   init() {
-    document.getElementById("pupiform").addEventListener("submit", (event) => {
-      event.preventDefault();
-      app.searchWord(event.target.search.value);
-    });
-    document.getElementById("target").appendChild(grid.table);
+    document
+      .getElementById("pupiform")
+      ?.addEventListener("submit", (event: Event) => {
+        event.preventDefault();
+        if (event.target && event.target) {
+          const { search } = <HTMLFormElement>event.target;
+          app.searchWord((<HTMLInputElement>search).value);
+        }
+      });
+    document.getElementById("target")?.appendChild(grid.table);
   },
 };
 
