@@ -34,17 +34,19 @@ export default class Pupi {
   }
 
   find(value: string): PupiPoint[] {
-    let points: PupiPoint[] = [],
-      word = value.replace(/\s+/g, "");
+    let points: PupiPoint[] = [];
+    const word = value.trim();
 
     searchY: for (let y = 0; y < this.data.length; y++) {
       for (let x = 0; x < this.data[y].length; x++) {
         for (let dirKey in Direction) {
-          points = this._walker(
+          points = this.doWalk(
             word,
-            Direction[dirKey as keyof typeof Direction],
-            x,
-            y
+            {
+              x,
+              y,
+            },
+            Direction[dirKey as keyof typeof Direction]
           );
           if (points.length) {
             break searchY;
@@ -54,46 +56,39 @@ export default class Pupi {
     }
     return points;
   }
-  private _walker(
+  private doWalk(
     word: string,
-    dir: Direction,
-    x: number,
-    y: number
+    point: PupiPoint,
+    direction: Direction
   ): PupiPoint[] {
-    let points: PupiPoint[] = [];
+    const points: PupiPoint[] = [];
     const letters = word.toUpperCase().trim().split("");
     const lettersLen = letters.length;
 
     const go = (index: number) => {
-      let ls = letters[index];
-      let lf = this.data[y][x];
+      const ls = letters[index];
+      const lf = this.data[point.y][point.x];
 
       if (ls == lf) {
-        points.push({
-          x,
-          y,
-        });
-        if (points.length === lettersLen) {
+        if (
+          points.push({
+            ...point,
+          }) === lettersLen
+        ) {
           return;
         }
       } else {
         return;
       }
 
-      const directions = {
-        [Direction.TOP]: () => y--,
-        [Direction.TOP_RIGHT]: () => (y--, x++),
-        [Direction.RIGHT]: () => x++,
-        [Direction.BOTTOM_RIGHT]: () => (y++, x++),
-        [Direction.BOTTOM]: () => y++,
-        [Direction.BOTTOM_LEFT]: () => (y++, x--),
-        [Direction.LEFT]: () => x--,
-        [Direction.TOP_LEFT]: () => (y--, x--),
-      };
+      this.walkToDirection(direction, point);
 
-      directions[dir]();
-
-      if (x >= 0 && x < this.limitX && y >= 0 && y < this.limitY) {
+      if (
+        point.x >= 0 &&
+        point.x < this.limitX &&
+        point.y >= 0 &&
+        point.y < this.limitY
+      ) {
         go(++index);
       }
     };
@@ -105,5 +100,36 @@ export default class Pupi {
     }
 
     return [];
+  }
+
+  private walkToDirection(direction: Direction, point: PupiPoint): void {
+    switch (direction) {
+      case Direction.TOP:
+        point.y--;
+        break;
+      case Direction.TOP_RIGHT:
+        point.y--, point.x++;
+        break;
+      case Direction.RIGHT:
+        point.x++;
+        break;
+      case Direction.BOTTOM_RIGHT:
+        point.y++, point.x++;
+        break;
+      case Direction.BOTTOM:
+        point.y++;
+        break;
+      case Direction.BOTTOM_LEFT:
+        point.y++, point.x--;
+        break;
+      case Direction.LEFT:
+        point.x--;
+        break;
+      case Direction.TOP_LEFT:
+        point.y--, point.x--;
+        break;
+      default:
+        break;
+    }
   }
 }

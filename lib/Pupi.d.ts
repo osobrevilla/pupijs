@@ -16,6 +16,7 @@ export default class Pupi {
     private limitY;
     constructor(data: PupiData);
     find(value: string): PupiPoint[];
-    private _walker;
+    private doWalk;
+    private walkToDirection;
 }
 //# sourceMappingURL=Pupi.d.ts.map
