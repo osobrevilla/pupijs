@@ -11,12 +11,11 @@ export declare type PupiPoint = {
 };
 /** Pupi resolves an alphabet soup */
 export default class Pupi {
-    private data;
+    readonly data: PupiData;
     private limitX;
     private limitY;
     constructor(data: PupiData);
     find(value: string): PupiPoint[];
     private doWalk;
-    private walkToDirection;
 }
 //# sourceMappingURL=Pupi.d.ts.map

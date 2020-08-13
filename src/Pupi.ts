@@ -5,16 +5,18 @@
  * MIT License 2015
  */
 
-enum Direction {
-  RIGHT = "R",
-  BOTTOM_RIGHT = "BR",
-  BOTTOM = "B",
-  BOTTOM_LEFT = "BL",
-  LEFT = "L",
-  TOP_LEFT = "TL",
-  TOP = "T",
-  TOP_RIGHT = "TR",
-}
+type Direction = [number, number];
+
+const Directions = [
+  [0, -1], // TOP
+  [1, -1], // TOP_RIGHT
+  [1, 0], // RIGHT
+  [1, 1], // RIGHT_BOTTOM
+  [0, 1], // BOTTOM
+  [-1, 1], // LEFT_BOTTOM
+  [-1, 0], // LEFT
+  [-1, -1], // LEFT_TOP
+] as Direction[];
 
 export declare type PupiData = [string[]];
 
@@ -23,7 +25,7 @@ export declare type PupiPoint = { x: number; y: number };
 /** Pupi resolves an alphabet soup */
 
 export default class Pupi {
-  private data: PupiData = [[]];
+  readonly data: PupiData = [[]];
   private limitX: number;
   private limitY: number;
 
@@ -39,14 +41,14 @@ export default class Pupi {
 
     searchY: for (let y = 0; y < this.data.length; y++) {
       for (let x = 0; x < this.data[y].length; x++) {
-        for (let dirKey in Direction) {
+        for (let dir of Directions) {
           points = this.doWalk(
             word,
             {
               x,
               y,
             },
-            Direction[dirKey as keyof typeof Direction]
+            dir
           );
           if (points.length) {
             break searchY;
@@ -59,17 +61,18 @@ export default class Pupi {
   private doWalk(
     word: string,
     point: PupiPoint,
-    direction: Direction
+    [x, y]: Direction
   ): PupiPoint[] {
     const points: PupiPoint[] = [];
-    const letters = word.toUpperCase().trim().split("");
+    const letters = [...word.trim().toLowerCase()];
     const lettersLen = letters.length;
 
     const go = (index: number) => {
-      const ls = letters[index];
-      const lf = this.data[point.y][point.x];
+      const { data, limitX, limitY } = this;
+      const wordChar = letters[index];
+      const gridChar = data[point.y][point.x];
 
-      if (ls == lf) {
+      if (wordChar == gridChar.toLowerCase()) {
         if (
           points.push({
             ...point,
@@ -81,13 +84,14 @@ export default class Pupi {
         return;
       }
 
-      this.walkToDirection(direction, point);
+      point.x += x;
+      point.y += y;
 
       if (
         point.x >= 0 &&
-        point.x < this.limitX &&
+        point.x < limitX &&
         point.y >= 0 &&
-        point.y < this.limitY
+        point.y < limitY
       ) {
         go(++index);
       }
@@ -95,41 +99,6 @@ export default class Pupi {
 
     go(0);
 
-    if (points.length === lettersLen) {
-      return points;
-    }
-
-    return [];
-  }
-
-  private walkToDirection(direction: Direction, point: PupiPoint): void {
-    switch (direction) {
-      case Direction.TOP:
-        point.y--;
-        break;
-      case Direction.TOP_RIGHT:
-        point.y--, point.x++;
-        break;
-      case Direction.RIGHT:
-        point.x++;
-        break;
-      case Direction.BOTTOM_RIGHT:
-        point.y++, point.x++;
-        break;
-      case Direction.BOTTOM:
-        point.y++;
-        break;
-      case Direction.BOTTOM_LEFT:
-        point.y++, point.x--;
-        break;
-      case Direction.LEFT:
-        point.x--;
-        break;
-      case Direction.TOP_LEFT:
-        point.y--, point.x--;
-        break;
-      default:
-        break;
-    }
+    return points.length === lettersLen ? points : [];
   }
 }

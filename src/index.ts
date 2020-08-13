@@ -1,5 +1,7 @@
 import Pupi, { PupiData, PupiPoint } from "./Pupi";
 
+type CellMap = { [key: string]: { node: HTMLElement; value: string } };
+
 const soap = `Z U R O A C Z A V A I U W D A
             A T O G A M W E S X Q V L I R
             O U D N G O N U Z L A T V M G
@@ -18,54 +20,75 @@ const soap = `Z U R O A C Z A V A I U W D A
 
 const data = soap.split(/\n\s+/).map((r) => r.split(" "));
 
-const pupi = new Pupi(data as PupiData);
+class Demo {
+  private map: CellMap;
+  private table: HTMLTableElement;
+  private grid: HTMLDivElement | null;
+  private form: HTMLElement | null;
+  private pupi: Pupi;
 
-const grid = (() => {
-  const map: { [key: string]: { node: HTMLElement; value: string } } = {};
-  const table = document.createElement("table");
-  data.forEach((row, y) => {
-    const rowNode = document.createElement("tr");
-    table.append(rowNode);
-    row.forEach((col, x) => {
-      const node = document.createElement("td");
-      const value = data[y][x];
-      node.textContent = value;
-      map[x + "-" + y] = {
-        node,
-        value,
-      };
-      rowNode.appendChild(node);
+  constructor(pupi: Pupi) {
+    this.pupi = pupi;
+    this.form = document.querySelector("form");
+    this.grid = document.querySelector(".grid");
+    [this.table, this.map] = this.buildGrid(pupi.data);
+
+    this.form?.addEventListener("submit", (event: Event) => {
+      event.preventDefault();
+      if (event.target && event.target) {
+        const { search } = <HTMLFormElement>event.target;
+        this.searchWord((<HTMLInputElement>search).value);
+      }
     });
-  });
-  return { table, map };
-})();
 
-const highlightPoints = (points: PupiPoint[]) => {
-  points.forEach(({ x, y }) => {
-    grid.map[x + "-" + y].node.classList.add("hightlight");
-  });
-};
+    document.querySelector(".grid")?.appendChild(this.table);
+  }
 
-const app = {
   searchWord(word: string) {
-    const points = pupi.find(word);
-    if (points) {
-      highlightPoints(points);
+    const points = this.pupi.find(word);
+    if (points.length) {
+      this.highlightPoints(points);
+    } else {
+      this.notFound();
     }
     return false;
-  },
-  init() {
-    document
-      .getElementById("pupiform")
-      ?.addEventListener("submit", (event: Event) => {
-        event.preventDefault();
-        if (event.target && event.target) {
-          const { search } = <HTMLFormElement>event.target;
-          app.searchWord((<HTMLInputElement>search).value);
-        }
-      });
-    document.getElementById("target")?.appendChild(grid.table);
-  },
-};
+  }
 
-document.addEventListener("DOMContentLoaded", app.init);
+  private notFound(): void {
+    this.grid?.classList.add("animate__shakeX");
+    setTimeout(() => this.grid?.classList.remove("animate__shakeX"), 500);
+  }
+
+  private highlightPoints(points: PupiPoint[]): void {
+    points.forEach(({ x, y }, index) => {
+      setTimeout(() => {
+        this.map[x + "-" + y].node.classList.add("hightlight");
+      }, index * 50);
+    });
+  }
+
+  private buildGrid(data: PupiData): [HTMLTableElement, CellMap] {
+    const map: CellMap = {};
+    const table = document.createElement("table");
+    data.forEach((row, y) => {
+      const rowNode = document.createElement("tr");
+      table.append(rowNode);
+      row.forEach((col, x) => {
+        const node = document.createElement("td");
+        const value = data[y][x];
+        node.innerHTML = `<svg viewBox="0 0 20 20"><text x="3.5" y="18">${value}</text></svg>`;
+        map[x + "-" + y] = {
+          node,
+          value,
+        };
+        rowNode.appendChild(node);
+      });
+    });
+    return [table, map];
+  }
+}
+
+document.addEventListener(
+  "DOMContentLoaded",
+  () => new Demo(new Pupi(data as PupiData))
+);
