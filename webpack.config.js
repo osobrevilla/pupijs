@@ -5,7 +5,7 @@ const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 module.exports = (env, argv) => {
   const { mode } = argv;
   const config = {
-    entry: path.join(__dirname, "src", "index.ts"),
+    entry: path.join(__dirname, "src", "demo", "index.ts"),
     output: {
       path: path.resolve("dist"),
       filename: "[name].min.js",
@@ -14,6 +14,15 @@ module.exports = (env, argv) => {
     },
     module: {
       rules: [
+        {
+          test: /\.(mp3)$/i,
+          use: {
+            loader: "file-loader",
+            options: {
+              outputPath: "sounds",
+            },
+          },
+        },
         {
           test: /\.tsx?$/,
           use: {
@@ -27,12 +36,12 @@ module.exports = (env, argv) => {
       ],
     },
     resolve: {
-      extensions: [".tsx", ".ts", ".js"],
+      extensions: [".tsx", ".ts", ".js", ".mp3"],
     },
     plugins: [
       new CleanWebpackPlugin(),
       new HtmlWebpackPlugin({
-        template: path.join(__dirname, "src", "index.tpl.html"),
+        template: path.join(__dirname, "src/demo", "index.tpl.html"),
         inject: "body",
       }),
     ],

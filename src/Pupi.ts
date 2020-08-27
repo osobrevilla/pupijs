@@ -18,9 +18,9 @@ const Directions = [
   [-1, -1], // LEFT_TOP
 ] as Direction[];
 
-export declare type PupiData = [string[]];
+export type PupiData = [string[]];
 
-export declare type PupiPoint = { x: number; y: number };
+export type PupiPoint = { x: number; y: number };
 
 /** Pupi resolves an alphabet soup */
 
