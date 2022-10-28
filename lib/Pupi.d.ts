@@ -18,4 +18,3 @@ export default class Pupi {
     find(value: string): PupiPoint[];
     private doWalk;
 }
-//# sourceMappingURL=Pupi.d.ts.map

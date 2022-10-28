@@ -1,4 +1,4 @@
-import Pupi, { PupiData, PupiPoint } from "../Pupi";
+import Pupi, { PupiData, PupiPoint } from "../src/Pupi";
 import matchOne from "./sounds/466554_1622836-lq.mp3";
 import notFound from "./sounds/67454_754949-hq.mp3";
 
@@ -27,10 +27,10 @@ class Demo {
     this.wrongAudio = document.createElement("audio");
 
     this.wrongAudio.src = notFound;
-    this.wrongAudio.preload = "true";
+    this.wrongAudio.preload = "auto";
 
     this.matchAudio.src = matchOne;
-    this.matchAudio.preload = "true";
+    this.matchAudio.preload = "auto";
 
     [this.table, this.map] = this.buildGrid(pupi.data);
 
@@ -80,7 +80,7 @@ class Demo {
     data.forEach((row, y) => {
       const rowNode = document.createElement("tr");
       table.append(rowNode);
-      row.forEach((col, x) => {
+      row.forEach((_, x) => {
         const node = document.createElement("td");
         const value = data[y][x];
         node.innerHTML = `<svg viewBox="0 0 20 20"><text x="3.5" y="18">${value}</text></svg>`;
